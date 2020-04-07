@@ -1,0 +1,10 @@
+gradle.properties
+gradlew
+gradlew.bat
+settings.gradle
+local.properties
+gradle/
+.gradle/
+.idea/
+Socket.iml
+build.gradle
