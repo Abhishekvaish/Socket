@@ -5,31 +5,33 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center_vertical"
     android:orientation="vertical"
-    tools:context=".MainActivity">
+    tools:context=".Member">
+
+    <TextView
+        android:id="@+id/tvHint"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:textColor="#000000"
+        android:background="@color/colorAccent"
+        android:textSize="18sp"
+        android:gravity="center_horizontal"
+        android:layout_margin="10dp"
+        />
 
     <Button
-        android:id="@+id/BtnSend"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:text="Send"
-        android:textSize="18sp"
+        android:layout_height="wrap_content"
+        android:text="Select File"
         android:textColor="#FFFFFF"
         android:background="@drawable/btn_rounded"
-        android:layout_margin="10dp"
-        android:onClick="btnSend"
-        />
-    <Button
-        android:id="@+id/BtnReceive"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:text="Receive"
+        android:textStyle="bold"
         android:textSize="18sp"
-        android:textColor="#FFFFFF"
-        android:background="@drawable/btn_rounded"
         android:layout_margin="10dp"
-        android:onClick="btnReceive"
+        android:onClick="chooseFile"
+
         />
+
 
 </LinearLayout>

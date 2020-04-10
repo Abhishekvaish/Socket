@@ -13,7 +13,8 @@
         android:roundIcon="@drawable/ic_share_black_24dp"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".Host"></activity>
+        <activity android:name=".Member"></activity>
+        <activity android:name=".Host" />
         <activity android:name=".Receive" />
         <activity android:name=".Send" />
         <activity android:name=".MainActivity">

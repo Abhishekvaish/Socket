@@ -9,8 +9,11 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.View;
 import android.widget.Toast;
+
+import java.io.File;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -23,20 +26,24 @@ public class MainActivity extends AppCompatActivity {
             PackageManager.PERMISSION_GRANTED)
         {
             if(! ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.WRITE_EXTERNAL_STORAGE))
-                Toast.makeText(this, "You Permanently denied the permission To restore defaults clear appdata in settings->App->Socket->Storage-", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "You Permanently denied the permission To restore defaults clear appdata in settings->App->Socket->Permission->Storage", Toast.LENGTH_LONG).show();
             else
                 ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},10);
-
         }
+
+        String root = Environment.getExternalStorageDirectory().toString();
+        File dir = new File(root+File.separator+"Socket");
+        if(!dir.exists() || dir.isDirectory())
+            dir.mkdir();
 
     }
 
     public void btnSend(View view){
-        Intent intent = new Intent(MainActivity.this,Send.class);
+        Intent intent = new Intent(MainActivity.this,Member.class);
         startActivity(intent);
     }
     public void btnReceive(View view){
-        Intent intent = new Intent(MainActivity.this,Receive.class);
+        Intent intent = new Intent(MainActivity.this,Host.class);
         startActivity(intent);
     }
 
