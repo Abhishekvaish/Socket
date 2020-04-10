@@ -34,30 +34,28 @@ public class Receive extends AppCompatActivity {
         @Override
         protected Void doInBackground(Void... voids) {
             try{
-                Log.d("CONNECTION",getFilesDir().toString());
                 ServerSocket server = new ServerSocket(5000);
-                Log.d("CONNECTION","server started....");
-                 socket = server.accept();
-                Log.d("CONNECTION","connected");
+                socket = server.accept();
+
                 DataInputStream inputStream = new DataInputStream(new BufferedInputStream(socket.getInputStream()) );
                 filename = inputStream.readUTF();
+
 
                 String root = Environment.getExternalStorageDirectory().toString();
                 File dir = new File(root+File.separator+"Socket");
                 if(!dir.exists() || dir.isDirectory())
                     dir.mkdir();
                 File file = new File(dir,filename);
-                FileOutputStream output = new FileOutputStream(file);
-                int BUFFER_SIZE = 4096;
+                Log.d("ABHISHEK",file.getName());
+                FileOutputStream outputFile = new FileOutputStream(file);
+
+                int BUFFER_SIZE = 4096,count;
                 byte[] buffer = new byte[BUFFER_SIZE];
-                while ( inputStream.read(buffer) != -1 )
-                    output.write(buffer);
-               output.close();
-
-
-                Log.d("CONNECTION","received..");
-
-
+                while ( (count=inputStream.read(buffer)) != -1 )
+                    outputFile.write(buffer,0,count);
+                    //outputFile.write(buffer);
+                outputFile.flush();
+                outputFile.close();
 
                 inputStream.close();
                 server.close();
@@ -67,6 +65,8 @@ public class Receive extends AppCompatActivity {
             }
             return null;
         }
+
+
 
         @Override
         protected void onPostExecute(Void aVoid) {

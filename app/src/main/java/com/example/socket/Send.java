@@ -4,6 +4,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.net.DhcpInfo;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
@@ -27,6 +29,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.nio.ByteOrder;
+import java.util.List;
 
 public class Send extends AppCompatActivity {
     TextView tvText;
@@ -38,6 +41,15 @@ public class Send extends AppCompatActivity {
         setContentView(R.layout.activity_send);
         tvText = findViewById(R.id.tvText);
 
+        final PackageManager pm = getPackageManager();
+//get a list of installed apps.
+        List<ApplicationInfo> packages = pm.getInstalledApplications(PackageManager.GET_META_DATA);
+
+        for (ApplicationInfo packageInfo : packages) {
+            Log.d("MY", "Installed package :" + packageInfo.packageName);
+   //         Log.d("MY", "Source dir : " + packageInfo.sourceDir);
+    //        Log.d("MY", "Launch Activity :" + pm.getLaunchIntentForPackage(packageInfo.packageName));
+        }
 
             WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
             if (wifiManager == null)
@@ -45,12 +57,8 @@ public class Send extends AppCompatActivity {
             else{
                 int tmp =wifiManager.getDhcpInfo().gateway;
                 gateway = String.format("%d.%d.%d.%d", (tmp & 0xff), (tmp >> 8 & 0xff), (tmp >> 16 & 0xff), (tmp >> 24 & 0xff));
-                tvText.setText(gateway);
-
+                tvText.setText("Connected to wifi gateway "+gateway);
             }
-
-
-
     }
 
 
@@ -59,6 +67,7 @@ public class Send extends AppCompatActivity {
         Socket socket=null;
         Uri uri;
         String ipad;
+
         public doInBackground(String ipad , Uri uri){
             this.ipad = ipad;
             this.uri = uri;
@@ -66,25 +75,21 @@ public class Send extends AppCompatActivity {
         @Override
         protected Void doInBackground(Void... voids) {
             try {
-                Log.d("Abhishek","connecting...");
                 socket = new Socket(ipad,5000);
-                Log.d("Abhishek","connected to server");
                 DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
-
- //               outputStream.writeUTF("hello!");
 
                 FileInputStream inputFile = new FileInputStream(Send.this.getContentResolver().openFileDescriptor(uri, "r").getFileDescriptor());
                 outputStream.writeUTF(uri.getLastPathSegment());
+                File file = new File(uri.getPath());
+                Log.d("ABHISHEK",file.getName());
 
-                int BUFFER_SIZE = 4096;
+
+                int BUFFER_SIZE = 4096 ,count;
                 byte[] buffer = new byte[BUFFER_SIZE];
-                while ( inputFile.read(buffer) != -1 )
-                    outputStream.write(buffer);
+                while ( (count=inputFile.read(buffer)) != -1 )
+                    outputStream.write(buffer,0,count);
+
                 inputFile.close();
-
-
-                Log.d("Abhishek","file sent...");
-
                 outputStream.close();
                 socket.close();
 
@@ -93,6 +98,7 @@ public class Send extends AppCompatActivity {
             }
             return null;
         }
+
 
         @Override
         protected void onPostExecute(Void aVoid) {
@@ -113,10 +119,7 @@ public class Send extends AppCompatActivity {
         if (requestCode == 2){
             if(resultCode == RESULT_OK){
                 Uri uri = data.getData();
-                Log.d("Abhishek",uri.getLastPathSegment());
-                Log.d("Abhishek",uri.getPath());
                 new doInBackground(gateway,uri).execute();
-
             }
             else {
                 Toast.makeText(this, "Please Select a File", Toast.LENGTH_SHORT).show();

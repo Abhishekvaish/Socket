@@ -23,7 +23,7 @@
         android:layout_height="wrap_content"
         android:text="Select File"
         android:textColor="#FFFFFF"
-        android:background="@color/colorPrimary"
+        android:background="@drawable/btn_rounded"
         android:textStyle="bold"
         android:textSize="18sp"
         android:layout_margin="10dp"

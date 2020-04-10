@@ -3,12 +3,9 @@
     <solid android:color="@color/colorPrimary"/>
     <corners android:radius="25dp"/>
     <gradient
+        android:startColor="@color/colorPrimaryLight"
+        android:endColor="@color/colorPrimaryDark"
         android:angle="45"
-        android:centerX="35%"
-        android:centerColor="#A836FF"
-        android:startColor="#E8E8E8"
-        android:endColor="#000000"
-        android:type="linear"
         />
 
 </shape>
