@@ -39,11 +39,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void btnSend(View view){
-        Intent intent = new Intent(MainActivity.this,Member.class);
+        Intent intent = new Intent(MainActivity.this,Send.class);
         startActivity(intent);
     }
     public void btnReceive(View view){
-        Intent intent = new Intent(MainActivity.this,Host.class);
+        Intent intent = new Intent(MainActivity.this,Receive.class);
         startActivity(intent);
     }
 
