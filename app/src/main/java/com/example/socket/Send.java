@@ -1,5 +1,6 @@
 package com.example.socket;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -11,6 +12,7 @@ import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.provider.OpenableColumns;
 import android.util.Log;
 import android.view.View;
@@ -30,7 +32,7 @@ public class Send extends AppCompatActivity {
     ArrayList<RowFiles> listFiles;
     int CHOOSEFILE = 10 , CURRENT_FILE=0;
     String gateway;
-    Socket socket;
+    public static Socket socket;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,14 +49,15 @@ public class Send extends AppCompatActivity {
             tvHint.setText("Connected to wifi gateway "+gateway);
         else
             tvHint.setText("Please Connect to Receiver's Hostspot");
-        listFiles = new ArrayList<>(0);
+
+        //listFiles = new ArrayList<>(0);
+
+        listFiles = ApplicationClass.listFiles;
         recyclerView.setAdapter(new MyAdapter(listFiles));
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setHasFixedSize(true);
 
     }
-
-
 
     public void chooseFile(View view) {
         if(!gateway.equals("0.0.0.0"))
@@ -76,7 +79,8 @@ public class Send extends AppCompatActivity {
             {
                 Uri uri = data.getData();
                 listFiles.add(getRowFileFromUri(uri));
-                recyclerView.getAdapter().notifyDataSetChanged();
+                ApplicationClass.type="SENDER";
+                recyclerView.getAdapter().notifyDataSetChanged();// SHIFT TO ASYNCTASK
                 if(CURRENT_FILE==listFiles.size()-1)
                     new SendFile().execute();
             }
@@ -157,10 +161,8 @@ public class Send extends AppCompatActivity {
             if(values[0].equals("tvHint"))
                 tvHint.setText(values[1]);
             else
-            {
                 fileObj.setMidsize(values[0]);
-                recyclerView.getAdapter().notifyDataSetChanged();
-            }
+            recyclerView.getAdapter().notifyDataSetChanged();
 
         }
 
@@ -172,9 +174,10 @@ public class Send extends AppCompatActivity {
                 Toast.makeText(Send.this, "File Sent", Toast.LENGTH_SHORT).show();
                 CURRENT_FILE+=1;
             }
-            if(CURRENT_FILE < listFiles.size())
+            if(CURRENT_FILE < listFiles.size() && ApplicationClass.type.equals("SENDER"))
                 new SendFile().execute();
         }
     }
+
 
 }

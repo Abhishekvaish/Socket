@@ -24,7 +24,7 @@ public class Receive extends AppCompatActivity {
     TextView tvHint;
     RecyclerView recyclerView;
     ArrayList<RowFiles> listFiles;
-    Socket socket;
+    public static Socket socket;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +35,9 @@ public class Receive extends AppCompatActivity {
         tvHint.setText("Please On Your Hostpot and ask the sender to connect ");
 
         recyclerView = findViewById(R.id.recyclerview);
-        listFiles = new ArrayList<>(0);
+//        listFiles = new ArrayList<>(0);
+
+        listFiles = ApplicationClass.listFiles;
         recyclerView.setAdapter(new MyAdapter(listFiles));
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setHasFixedSize(true);
@@ -52,6 +54,7 @@ public class Receive extends AppCompatActivity {
                 ServerSocket server =  new ServerSocket(5000);
                 socket = server.accept();
                 publishProgress(-2);
+                ApplicationClass.type="RECEIVER";
                 DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
                 fileObj = new RowFiles(dataInputStream.readUTF(),dataInputStream.readUTF(),"0",null);
                 listFiles.add(fileObj);
@@ -97,7 +100,7 @@ public class Receive extends AppCompatActivity {
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-            if(FILE_RECEIVED)
+            if(FILE_RECEIVED &&  ApplicationClass.type.equals("RECEIVER"))
             {
                 Toast.makeText(Receive.this, "File Received", Toast.LENGTH_SHORT).show();
                 new ReceiveFile().execute();
@@ -106,4 +109,5 @@ public class Receive extends AppCompatActivity {
         }
 
     }
+
 }

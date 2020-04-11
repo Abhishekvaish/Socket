@@ -11,9 +11,11 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -31,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
                 ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},10);
         }
 
+
         String root = Environment.getExternalStorageDirectory().toString();
         File dir = new File(root+File.separator+"Socket");
         if(!dir.exists() || dir.isDirectory())
@@ -39,12 +42,52 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void btnSend(View view){
-        Intent intent = new Intent(MainActivity.this,Send.class);
-        startActivity(intent);
+        if( !ApplicationClass.type.equals("RECEIVER"))
+        {
+            Intent intent = new Intent(MainActivity.this,Send.class);
+            startActivity(intent);
+        }
+        else
+            Toast.makeText(this, "Receiving Some Files Disconnect to Stop", Toast.LENGTH_SHORT).show();
+
     }
     public void btnReceive(View view){
-        Intent intent = new Intent(MainActivity.this,Receive.class);
-        startActivity(intent);
+        if( !ApplicationClass.type.equals("SENDER"))
+        {
+            Intent intent = new Intent(MainActivity.this,Receive.class);
+            startActivity(intent);
+        }
+        else
+            Toast.makeText(this, "Sending Some Files Disconnect to Stop", Toast.LENGTH_SHORT).show();
+    }
+
+    public void Disconnect(View view){
+        ApplicationClass.type= "";
+        ApplicationClass.listFiles.clear();
+        if(Send.socket!=null) {
+            try {
+                Send.socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        else if (Receive.socket!=null){
+            try {
+                Receive.socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        view.setVisibility(View.GONE);
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Button btnDisconnect = findViewById(R.id.BtnDisconnect);
+        if(!ApplicationClass.type.isEmpty())
+            btnDisconnect.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -55,4 +98,6 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "Thankyou", Toast.LENGTH_SHORT).show();
         }
     }
+
+
 }
