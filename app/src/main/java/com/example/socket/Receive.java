@@ -103,6 +103,7 @@ public class Receive extends AppCompatActivity {
             if(FILE_RECEIVED &&  ApplicationClass.type.equals("RECEIVER"))
             {
                 Toast.makeText(Receive.this, "File Received", Toast.LENGTH_SHORT).show();
+                recyclerView.getLayoutManager().findViewByPosition(listFiles.size()-1).findViewById(R.id.linearlayout).setBackgroundColor(0xFF9ACD32);
                 new ReceiveFile().execute();
             }
 

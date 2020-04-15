@@ -21,6 +21,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
@@ -30,7 +32,7 @@ public class Send extends AppCompatActivity {
     TextView tvHint;
     RecyclerView recyclerView;
     ArrayList<RowFiles> listFiles;
-    int CHOOSEFILE = 10 , CURRENT_FILE=0;
+    int CHOOSEFILE = 10,CHOOSEAPP=20 , CURRENT_FILE=0;
     String gateway;
     public static Socket socket;
 
@@ -42,13 +44,7 @@ public class Send extends AppCompatActivity {
         tvHint = findViewById(R.id.tvHint);
         recyclerView = findViewById(R.id.recyclerview);
 
-        WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
-        int tmp =wifiManager.getDhcpInfo().gateway;
-        gateway = String.format("%d.%d.%d.%d", (tmp & 0xff), (tmp >> 8 & 0xff), (tmp >> 16 & 0xff), (tmp >> 24 & 0xff));
-        if (!gateway.equals("0.0.0.0"))
-            tvHint.setText("Connected to wifi gateway "+gateway);
-        else
-            tvHint.setText("Please Connect to Receiver's Hostspot");
+        getWifi();
 
         //listFiles = new ArrayList<>(0);
 
@@ -58,8 +54,18 @@ public class Send extends AppCompatActivity {
         recyclerView.setHasFixedSize(true);
 
     }
+    public void getWifi(){
+        WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
+        int tmp =wifiManager.getDhcpInfo().gateway;
+        gateway = String.format("%d.%d.%d.%d", (tmp & 0xff), (tmp >> 8 & 0xff), (tmp >> 16 & 0xff), (tmp >> 24 & 0xff));
+        if (!gateway.equals("0.0.0.0"))
+            tvHint.setText("Connected to wifi gateway "+gateway);
+        else
+            tvHint.setText("Please Connect to Receiver's Hostspot");
+    }
 
     public void chooseFile(View view) {
+        getWifi();
         if(!gateway.equals("0.0.0.0"))
         {
             Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
@@ -70,23 +76,35 @@ public class Send extends AppCompatActivity {
             Toast.makeText(this, "Please Connect to Receiver's Hotspot ", Toast.LENGTH_SHORT).show();
 
     }
+
+    public void chooseApp(View view){
+        getWifi();
+        if(!gateway.equals("0.0.0.0"))
+            startActivityForResult(new Intent(this,Explorer.class),CHOOSEAPP);
+        else
+            Toast.makeText(this, "Please Connect to Receiver's Hotspot ", Toast.LENGTH_SHORT).show();
+
+    }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == CHOOSEFILE)
-        {
             if(resultCode == RESULT_OK)
             {
                 Uri uri = data.getData();
-                listFiles.add(getRowFileFromUri(uri));
+                if(requestCode==CHOOSEFILE)
+                    listFiles.add(getRowFileFromUri(uri));
+                else
+                    listFiles.add(getRowAppFromIntent(data));
                 ApplicationClass.type="SENDER";
                 recyclerView.getAdapter().notifyDataSetChanged();// SHIFT TO ASYNCTASK
                 if(CURRENT_FILE==listFiles.size()-1)
                     new SendFile().execute();
             }
             else
-                Toast.makeText(this, "Please Select a File", Toast.LENGTH_SHORT).show();
-        }
+                Toast.makeText(this, "Please Select a File or App", Toast.LENGTH_SHORT).show();
+
+
+
     }
 
     public RowFiles getRowFileFromUri(Uri uri)
@@ -117,6 +135,15 @@ public class Send extends AppCompatActivity {
         size = (int)(Float.parseFloat(size)/(1024.0*1024))+"";
         return new RowFiles(name,size,"0",uri);
     }
+
+    public RowFiles getRowAppFromIntent(Intent data)
+    {
+        String filename = data.getStringExtra("name");
+        String size = data.getStringExtra("size");
+        return new RowFiles(filename,size,"0",data.getData());
+    }
+
+
 
     public class SendFile extends AsyncTask<Void,String,Void>
     {
@@ -172,6 +199,7 @@ public class Send extends AppCompatActivity {
             if(FILE_SENT)
             {
                 Toast.makeText(Send.this, "File Sent", Toast.LENGTH_SHORT).show();
+                recyclerView.getLayoutManager().findViewByPosition(CURRENT_FILE).findViewById(R.id.linearlayout).setBackgroundColor(0xFF9ACD32);
                 CURRENT_FILE+=1;
             }
             if(CURRENT_FILE < listFiles.size() && ApplicationClass.type.equals("SENDER"))
